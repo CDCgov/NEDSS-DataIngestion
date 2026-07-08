@@ -11,27 +11,55 @@ import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
+import gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.sql.Timestamp;
 import java.util.*;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CustomRepositoryImplTest {
   @Mock private EntityManager entityManager;
 
   @Mock private PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
+  @Mock private OdseNameParamJdbcTemplate odseNameParamJdbcTemplate;
 
   @InjectMocks private CustomRepositoryImpl customRepositoryImpl;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     MockitoAnnotations.openMocks(this);
     customRepositoryImpl.entityManager = entityManager;
+    // for most tests - modify for individual tests that need nbsReleaseVersion to be 6.0.19.1+
+    // set up the query result
+    JdbcOperations jdbcOps =
+        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(0);
+
+    DataSource ds = mock(DataSource.class);
+    // init the template with the mocked jdbc ops
+    odseNameParamJdbcTemplate =
+        new OdseNameParamJdbcTemplate(ds) {
+          @Override
+          public JdbcOperations getJdbcOperations() {
+            return jdbcOps;
+          }
+        };
+
+    // call the post construct method so the mocked jdbc query is executed
+    odseNameParamJdbcTemplate.afterPropertiesSet();
+
+    // inject the template into customRepositoryImpl
+    ReflectionTestUtils.setField(
+        customRepositoryImpl, "odseNameParamJdbcTemplate", odseNameParamJdbcTemplate);
   }
 
   @Test
@@ -1092,7 +1120,8 @@ class CustomRepositoryImplTest {
           "DocEventTypeCd",
           "2021-01-01 10:00:00",
           1L,
-          2L
+          2L,
+          "2021-01-01 10:00:00"
         };
     List<Object[]> mockResults = new ArrayList<>();
     mockResults.add(objList);
@@ -1112,6 +1141,95 @@ class CustomRepositoryImplTest {
     assertEquals(1L, container.getNbsDocumentUid());
     assertEquals("LocalId", container.getLocalId());
     assertEquals("DocTypeCd", container.getDocTypeCd());
+    assertNull(container.getReceivedTime());
+
+    verify(entityManager, times(1)).createNativeQuery(any());
+    verify(mockQuery, times(1)).setParameter("NbsUid", nbsUid);
+    verify(mockQuery, times(1)).getResultList();
+    verify(publicHealthCaseStoredProcRepository, times(1)).getEDXEventProcessMap(any());
+  }
+
+  @Test
+  void
+      getNbsDocument_shouldReturnNbsDocumentContainer_whenResultsAreNotEmptyAndNbsReleaseEnablesDocReceivedTime()
+          throws Exception {
+    // modified odse jdbc template for testing 6.0.19.1 condition
+    JdbcOperations jdbcOps =
+        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(1);
+
+    DataSource ds = mock(DataSource.class);
+
+    odseNameParamJdbcTemplate =
+        new OdseNameParamJdbcTemplate(ds) {
+          @Override
+          public JdbcOperations getJdbcOperations() {
+            return jdbcOps;
+          }
+        };
+
+    odseNameParamJdbcTemplate.afterPropertiesSet();
+
+    ReflectionTestUtils.setField(
+        customRepositoryImpl, "odseNameParamJdbcTemplate", odseNameParamJdbcTemplate);
+    // Arrange
+    Long nbsUid = 1L;
+    Query mockQuery = mock(Query.class);
+    var objList =
+        new Object[] {
+          1L,
+          "LocalId",
+          "DocTypeCd",
+          "JurisdictionCd",
+          "ProgAreaCd",
+          "DocStatusCd",
+          "2021-01-01 10:00:00",
+          "Txt",
+          1,
+          "DocPurposeCd",
+          "CdDescTxt",
+          "SendingFacilityNm",
+          1L,
+          "1",
+          "1",
+          "ProcessingDecisiontxt",
+          1,
+          "Cd",
+          "PayLoadTxt",
+          "PhdcDocDerivedTxt",
+          "PayloadViewIndCd",
+          1L,
+          "2021-01-01 10:00:00",
+          1L,
+          "1",
+          1L,
+          1L,
+          "DocEventTypeCd",
+          "2021-01-01 10:00:00",
+          1L,
+          2L,
+          "2021-01-01 10:00:00",
+          "2021-12-31 23:59:59"
+        };
+    List<Object[]> mockResults = new ArrayList<>();
+    mockResults.add(objList);
+    when(entityManager.createNativeQuery(any())).thenReturn(mockQuery);
+    when(mockQuery.setParameter("NbsUid", nbsUid)).thenReturn(mockQuery);
+    when(mockQuery.getResultList()).thenReturn(mockResults);
+    when(publicHealthCaseStoredProcRepository.getEDXEventProcessMap(any()))
+        .thenReturn(new HashMap<>());
+
+    // Act
+    NbsDocumentContainer result = customRepositoryImpl.getNbsDocument(nbsUid);
+
+    // Assert
+    assertNotNull(result);
+    NBSDocumentDto container = result.getNbsDocumentDT();
+    assertNotNull(container);
+    assertEquals(1L, container.getNbsDocumentUid());
+    assertEquals("LocalId", container.getLocalId());
+    assertEquals("DocTypeCd", container.getDocTypeCd());
+    assertNotNull(container.getReceivedTime());
 
     verify(entityManager, times(1)).createNativeQuery(any());
     verify(mockQuery, times(1)).setParameter("NbsUid", nbsUid);

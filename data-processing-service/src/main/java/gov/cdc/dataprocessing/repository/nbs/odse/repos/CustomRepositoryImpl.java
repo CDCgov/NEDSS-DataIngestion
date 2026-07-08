@@ -12,12 +12,14 @@ import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
+import gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -32,10 +34,13 @@ public class CustomRepositoryImpl implements CustomRepository {
   private static final String TYPE_CODE = "TypeCode";
 
   private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
+  private final OdseNameParamJdbcTemplate odseNameParamJdbcTemplate;
 
   public CustomRepositoryImpl(
-      PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository) {
+      PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
+      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate odseNameParamJdbcTemplate) {
     this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
+    this.odseNameParamJdbcTemplate = odseNameParamJdbcTemplate;
   }
 
   //    @Transactional
@@ -611,7 +616,12 @@ public class CustomRepositoryImpl implements CustomRepository {
   }
 
   public NbsDocumentContainer getNbsDocument(Long nbsUid) throws DataProcessingException {
-    Query query = entityManager.createNativeQuery(GET_NBS_DOCUMENT);
+    Query query;
+    if (odseNameParamJdbcTemplate.isNbsDocReceivedTimeEnabled()) {
+      query = entityManager.createNativeQuery(GET_NBS_DOCUMENT_6_0_19_1);
+    } else {
+      query = entityManager.createNativeQuery(GET_NBS_DOCUMENT);
+    }
 
     NBSDocumentDto container = new NBSDocumentDto();
     NbsDocumentContainer nbsDocumentVO = new NbsDocumentContainer();
@@ -656,6 +666,15 @@ public class CustomRepositoryImpl implements CustomRepository {
         PersonDto personDT = new PersonDto();
         personDT.setPersonUid(parseValue(item[++i], Long.class));
         personDT.setPersonParentUid(parseValue(item[++i], Long.class));
+        /*existing implementation increments 'i' so need to place statements accordingly
+        In the query, last_chg_time comes after person_parent_uid
+        */
+        container.setLastChgTime(parseValue(item[++i], Timestamp.class));
+
+        if (odseNameParamJdbcTemplate.isNbsDocReceivedTimeEnabled()) {
+          container.setReceivedTime(parseValue(item[++i], Timestamp.class));
+        }
+
         personVO.setThePersonDto(personDT);
         nbsDocumentVO.setPatientVO(personVO);
         nbsDocumentVO.setNbsDocumentDT(container);

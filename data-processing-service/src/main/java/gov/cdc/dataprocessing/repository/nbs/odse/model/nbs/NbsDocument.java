@@ -100,6 +100,9 @@ public class NbsDocument {
   @Column(name = "processing_decision_cd")
   private String processingDecisionCd;
 
+  @Column(name = "received_time")
+  private Timestamp receivedTime;
+
   public NbsDocument() {}
 
   public NbsDocument(NBSDocumentDto nbsDocumentDto) {
@@ -132,5 +135,6 @@ public class NbsDocument {
     this.externalVersionCtrlNbr = nbsDocumentDto.getExternalVersionCtrlNbr();
     this.processingDecisionTxt = nbsDocumentDto.getProcessingDecisiontxt();
     this.processingDecisionCd = nbsDocumentDto.getProcessingDecisionCd();
+    this.receivedTime = nbsDocumentDto.getReceivedTime();
   }
 }

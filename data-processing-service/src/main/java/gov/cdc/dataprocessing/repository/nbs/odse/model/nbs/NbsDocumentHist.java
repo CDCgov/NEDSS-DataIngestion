@@ -106,6 +106,9 @@ public class NbsDocumentHist {
   @Column(name = "processing_decision_cd")
   private String processingDecisionCd;
 
+  @Column(name = "received_time")
+  private Timestamp receivedTime;
+
   public NbsDocumentHist() {}
 
   public NbsDocumentHist(NBSDocumentDto documentDto) {
@@ -139,5 +142,6 @@ public class NbsDocumentHist {
     this.externalVersionCtrlNbr = documentDto.getExternalVersionCtrlNbr();
     this.processingDecisionTxt = documentDto.getProcessingDecisiontxt();
     this.processingDecisionCd = documentDto.getProcessingDecisionCd();
+    this.receivedTime = documentDto.getReceivedTime();
   }
 }
