@@ -42,7 +42,9 @@ dependencies {
 
   // database
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  // APP-800: pin to match data-ingestion/data-processing services and clear CVE-2025-59250
+  // (Spring BOM's managed 12.10.2.jre11 trips Trivy's .jre-suffix comparison).
+  runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre11'
   runtimeOnly 'org.postgresql:postgresql'
 
   // swagger
