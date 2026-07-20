@@ -263,7 +263,7 @@ dependencies {
   testImplementation 'org.testcontainers:mssqlserver:1.21.4'
   testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
   testImplementation 'org.apache.camel:camel-test-spring-junit5:4.11.0'
-  testImplementation(platform('org.junit:junit-bom:6.0.3'))
+  testImplementation(platform('org.junit:junit-bom:6.1.2'))
 
   // Inter-project dependencies
   // NOTE: dont remove this, might come back to this setup in the future  
