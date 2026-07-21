@@ -30,6 +30,24 @@ Following this guide will set up a fully functioning local development environme
 
 Once the above steps have been completed, the [postman collection](./DataIngestion_OLD.postman_collection.json) can be used to fetch an authentication token from Keycloak, submit an ELR, and check the status of the ELR. 
 
+### Running the combined nbs7 stack
+
+To run DataIngestion and NEDSS-DataReporting together against one shared
+database, Kafka cluster, and Debezium/Connect worker (rather than each repo's
+standalone `docker compose up`), check out both repos as sibling directories
+under one parent folder, then from either repo run:
+
+```bash
+./scripts/nbs7-deploy.sh up
+```
+
+This starts shared MSSQL, Kafka, and Debezium/Connect once, plus both
+projects' app services (`data-ingestion-service`, `data-processing-service`,
+`reporting-pipeline-service`, etc.) on one Docker network. See
+`docker-compose.shared.yml` and `scripts/nbs7-deploy.sh` for details, and
+`scripts/nbs7-deploy.sh` with no arguments (or `down`/`ps`/`logs`/`build`) for
+other commands.
+
 Swagger pages are also available
 1. [data-ingestion-service](http://localhost:8081/ingestion/swagger-ui/index.html)
 2. [data-processing-service](http://localhost:8082/rti/swagger-ui/index.html)

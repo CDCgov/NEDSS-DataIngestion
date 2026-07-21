@@ -1,0 +1,98 @@
+# Shared local-dev stack for running NEDSS-DataIngestion alongside
+# NEDSS-DataReporting against one database and one Kafka cluster.
+#
+# This file defines only the services unique to DataIngestion. The shared
+# infrastructure (nbs-mssql, kafka, debezium) is defined once in
+# ../NEDSS-DataReporting/docker-compose.shared.yml - both files are meant to
+# run together as a single Compose project via the orchestrator script,
+# not standalone:
+#
+#   ./scripts/nbs7-deploy.sh up   (from this repo, once checked out alongside its sibling)
+#
+# Manual equivalent:
+#   docker compose -p nbs7 \
+#     -f ../NEDSS-DataReporting/docker-compose.shared.yml \
+#     -f docker-compose.shared.yml \
+#     up -d --wait
+#
+# The standalone docker-compose.yml in this repo is untouched and continues
+# to work as before for DataIngestion-only dev.
+
+services:
+  data-ingestion-service:
+    build:
+      context: ${NBS7_ROOT:-/Volumes/skylight-dev/development/nbs7}/NEDSS-DataIngestion
+      dockerfile: ./data-ingestion-service/Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      di-keycloak:
+        condition: service_started
+      nbs-mssql:
+        condition: service_healthy
+    environment:
+      DI_AUTH_URI: http://di-keycloak:8080/realms/NBS
+      SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${DATABASE_PASSWORD:-fake.fake.fake.1234}
+    networks:
+      - shared
+
+  data-processing-service:
+    build:
+      context: ${NBS7_ROOT:-/Volumes/skylight-dev/development/nbs7}/NEDSS-DataIngestion
+      dockerfile: ./data-processing-service/Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      di-keycloak:
+        condition: service_started
+      nbs-mssql:
+        condition: service_healthy
+    environment:
+      DP_AUTH_URI: http://di-keycloak:8080/realms/NBS
+      SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${DATABASE_PASSWORD:-fake.fake.fake.1234}
+    networks:
+      - shared
+
+  di-keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    ports:
+      - "8100:8080"
+    volumes:
+      - ${NBS7_ROOT:-/Volumes/skylight-dev/development/nbs7}/NEDSS-DataIngestion/containers/keycloak/imports:/opt/keycloak/data/import
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD:-fake.fake.fake.1234}
+      - KC_HOSTNAME=http://localhost:8100
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
+    entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
+    networks:
+      - shared
+
+  di-record-linker:
+    image: ghcr.io/cdcgov/recordlinker:v25.10.0
+    depends_on:
+      nbs-mssql:
+        condition: service_healthy
+    ports:
+      - "8070:8070"
+    environment:
+      PORT: 8070
+      API_ROOT_PATH: '/api/record-linker'
+      DB_URI: mssql+pyodbc://sa:${DATABASE_PASSWORD:-fake.fake.fake.1234}@nbs-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
+    networks:
+      - shared
+
+networks:
+  shared:
+    name: nbs7-shared
+    driver: bridge
