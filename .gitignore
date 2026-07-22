@@ -67,3 +67,7 @@ containers/builder/NEDSSDev/
 build
 bin/
 containers/nbs-classic/builder/NEDSSDev/
+
+# Python virtual environments
+venv/
+.venv/
