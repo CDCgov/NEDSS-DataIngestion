@@ -1,0 +1,22 @@
+[project]
+name = "nbs7-e2e-elr-ingest"
+version = "0.1.0"
+description = "End-to-end HL7 ELR ingestion testing tool for the nbs7 local Docker Compose deployment (data-ingestion-service / data-processing-service)."
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31",
+    "faker>=37.0",
+]
+
+[project.optional-dependencies]
+db = ["pyodbc>=5.0"]
+
+[project.scripts]
+nbs7-elr-ingest = "nbs7_e2e.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["nbs7_e2e"]
