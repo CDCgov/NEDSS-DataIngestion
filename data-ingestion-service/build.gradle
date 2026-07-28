@@ -258,7 +258,7 @@ dependencies {
   testImplementation 'org.springframework.security:spring-security-test'
   testImplementation 'org.junit.jupiter:junit-jupiter'
   testImplementation 'org.springframework.kafka:spring-kafka-test:4.0.5'
-  testImplementation 'org.testcontainers:testcontainers:2.0.5'
+  testImplementation 'org.testcontainers:testcontainers:2.0.5' 
   testImplementation 'org.testcontainers:kafka:2.0.5'
   testImplementation 'org.testcontainers:mssqlserver:2.0.5'
   testImplementation 'org.testcontainers:junit-jupiter:2.0.5'
