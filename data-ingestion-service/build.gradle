@@ -224,13 +224,18 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus:1.15.0-M2'
 
   // Apache camel
-  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.21.0'
-  implementation 'org.apache.camel:camel-ftp:4.21.0'
-  implementation 'org.apache.camel:camel-aws2-s3:4.21.0'
-  implementation 'org.apache.camel:camel-endpointdsl:4.21.0'
-  implementation 'org.apache.camel.springboot:camel-file-starter:4.21.0'
-  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.21.0'
-  implementation 'org.apache.camel:camel-xml-jaxb:4.21.0'
+  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.22.0'
+  implementation 'org.apache.camel:camel-ftp:4.22.0'
+  implementation 'org.apache.camel:camel-aws2-s3:4.22.0'
+  implementation 'org.apache.camel:camel-endpointdsl:4.22.0'
+  implementation 'org.apache.camel.springboot:camel-file-starter:4.22.0'
+  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.22.0'
+  implementation 'org.apache.camel:camel-xml-jaxb:4.22.0'
+
+  // Netty - this is an indirect dependency, but needed to be version specified
+  // and other methods of doing so were not working
+  implementation 'io.netty:netty-codec-http:4.1.136.Final'
+  implementation 'io.netty:netty-codec-http2:4.1.136.Final'
 
   // Lombok annotations
   compileOnly 'org.projectlombok:lombok:1.18.34'
