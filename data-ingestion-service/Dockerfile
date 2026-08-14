@@ -2,6 +2,7 @@ FROM amazoncorretto:21 as builder
 
 # try patching system for security fixes
 RUN yum update -y && yum clean all
+RUN yum install -y findutils
 
 #Copy project config
 COPY gradle /usr/src/dataingestion/gradle
