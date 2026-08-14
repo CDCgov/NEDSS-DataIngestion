@@ -1,4 +1,4 @@
-FROM amazoncorretto:21 as builder
+FROM amazoncorretto:21 AS builder
 
 # try patching system for security fixes
 RUN yum update -y && yum clean all
