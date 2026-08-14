@@ -2,6 +2,8 @@ FROM amazoncorretto:21 as builder
 
 # try patching system for security fixes
 RUN yum update -y && yum clean all
+
+# Install xargs, used by a few deps in the gradle build process
 RUN yum install -y findutils
 
 #Copy project config
