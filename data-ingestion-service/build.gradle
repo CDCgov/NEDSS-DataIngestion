@@ -191,6 +191,8 @@ compileJava.mustRunAfter(":cdaschema:generateXmlBeans")
 compileJava.dependsOn(":cdaschema:copyJar")
 
 
+//ext['netty.version'] = '4.1.136.Final'
+
 dependencies {
   // Spring
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -234,6 +236,7 @@ dependencies {
 
   // Netty - this is an indirect dependency, but needed to be version specified
   // and other methods of doing so were not working
+  implementation 'io.netty:netty-codec:4.1.136.Final'
   implementation 'io.netty:netty-codec-http:4.1.136.Final'
   implementation 'io.netty:netty-codec-http2:4.1.136.Final'
 
