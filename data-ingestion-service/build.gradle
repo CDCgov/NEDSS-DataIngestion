@@ -238,8 +238,9 @@ dependencies {
   implementation 'io.netty:netty-codec-http:4.1.136.Final'
   implementation 'io.netty:netty-codec-http2:4.1.136.Final'
 
-  // Transitive Apache httpcomponents dependency, needed to fix CVE-2026-54399
-  implementation 'org.apache.httpcomponents.core5:httpcore5:5.4.3'
+  // Transitive Apache httpcomponents dependencies for vulnerability fixes
+  implementation 'org.apache.httpcomponents.core5:httpcore5:5.4.3'    // CVE-2026-54399
+  implementation 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3' // CVE-2026-54428
 
   // Lombok annotations
   compileOnly 'org.projectlombok:lombok:1.18.34'
