@@ -4,13 +4,13 @@ buildscript {
 		gradlePluginPortal()
 	}
 	dependencies {
-		classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+		classpath "com.gradleup.shadow:shadow-gradle-plugin:8.3.11"
 	}
 }
 
 plugins {
 	id 'java'
-	id 'com.github.johnrengelman.shadow' version '7.1.2'
+	id 'com.gradleup.shadow' version '8.3.11'
 }
 
 group = 'gov.cdc.dataingestion.phdc-xsd-jaxb'
