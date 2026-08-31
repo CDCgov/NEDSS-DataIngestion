@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: 21
-          distribution: "zulu" # Alternative distribution options are available
+          distribution: "zulu" # Alternative distribution options are available 
 
       - name: Cache Gradle packages
         uses: actions/cache@v6
